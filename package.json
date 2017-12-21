@@ -1,0 +1,58 @@
+{
+  "name": "JaMLinEditor",
+  "productName": "JaMLin Editor",
+  "description": "Editor for JaMLin JSON translations",
+  "version": "0.1.0",
+  "main": "src/main.js",
+  "author": "Marcel Zúbrik",
+  "devDependencies": {
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "electron-forge": "^4.1.6",
+    "electron-prebuilt-compile": "1.8.2-beta.3"
+  },
+  "dependencies": {
+    "dialog": "^0.3.1",
+    "electron-compile": "^6.4.2",
+    "electron-squirrel-startup": "^1.0.0",
+    "fs": "0.0.1-security",
+    "jquery": "^3.2.1"
+  },
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "config": {
+    "forge": {
+      "make_targets": {
+        "win32": [
+          "squirrel"
+        ],
+        "darwin": [
+          "zip"
+        ],
+        "linux": [
+          "deb"
+        ]
+      },
+      "electronPackagerConfig": {
+        "packageManager": "yarn"
+      },
+      "electronWinstallerConfig": {
+        "name": "JaMLinEditor"
+      },
+      "electronInstallerDebian": {},
+      "electronInstallerRedhat": {},
+      "github_repository": {
+        "owner": "",
+        "name": ""
+      },
+      "windowsStoreConfig": {
+        "packageName": "",
+        "name": "JaMLin Editor"
+      }
+    }
+  }
+}

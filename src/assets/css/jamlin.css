@@ -1,0 +1,30 @@
+#jsGrid .jsgrid-header-row>.jsgrid-header-cell {
+    text-align: center;
+    font-size: 120%;
+    background: #bbb;
+}
+#jsGrid .jsgrid-edit-row .jsgrid-cell input[readonly] {
+	border: 0;
+    background: none;
+}
+
+#jsGrid tr.block, #jsGrid tr.block td {
+	font-weight: bold;
+	background: #cc0000;
+	color: #fff;
+}
+
+#jsGrid tr.translation {
+	
+}
+
+.vertical-center {
+  min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+  min-height: 100vh; /* These two lines are counted as one :-)       */
+
+  display: flex;
+  align-items: center;
+}
+.vertical-center .row {
+  width: 100%;
+}
