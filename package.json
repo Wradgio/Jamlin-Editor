@@ -2,7 +2,7 @@
   "name": "JaMLinEditor",
   "productName": "JaMLin Editor",
   "description": "Editor for JaMLin JSON translations",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "src/main.js",
   "author": "Marcel Zúbrik",
   "devDependencies": {
@@ -38,7 +38,8 @@
         ]
       },
       "electronPackagerConfig": {
-        "packageManager": "yarn"
+        "packageManager": "yarn",
+        "icon": "out/resources/jamlin_app"
       },
       "electronWinstallerConfig": {
         "name": "JaMLinEditor"

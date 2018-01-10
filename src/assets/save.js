@@ -13,6 +13,8 @@ saveDialog(object) { {title:”Sheet Title”, prompt: “Button Text”, messag
  MacGap.File.write(filePath, fileData, fileType)
 
  */
+const dialog = require('electron').remote.dialog;
+var fs = require('fs');
 
 var showOpenDialog = function() {		
 	dialog.showOpenDialog( {filters: [{ name: 'json', extensions: ['json'] }]}, (fileNames) => {

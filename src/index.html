@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8">
     <title>JaMLin translation editor</title>
-    <link type="text/css" rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="./assets/bootstrap/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 	<link rel="stylesheet" href="./assets/bootstrap/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
     
@@ -12,20 +11,46 @@
 	<link type="text/css" rel="stylesheet" href="./assets/css/jamlin.css" />
     
     <script src="./assets/jquery/jquery.min.js"></script>
-	<script src="./assets/bootstrap/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+	<script src="./assets/bootstrap/js/bootstrap.min.js"></script>
   </head>
   
   <body>
   	<div class="needJson container-fluid vertical-center">
 	    <div class="row text-center">
-	    	<h1>JaMLin translation editor</h1>
+	    	<h1>JaMLin Editor</h1>
 	    	
-	    	<button type="button" class="showOpenDialogButton btn btn-primary "><span class="glyphicon glyphicon-file"></span>Open JaMLin extract JSON file</button>
+	    	<button type="button" class="showOpenDialogButton btn btn-primary "><span class="glyphicon glyphicon-file"></span>Open JaMLin "-extract.json" file</button>
+	    	
+	    	<p>File created by JaMLin extract action have name, that ends with "-extract.json".<br />It is simple JSON file with translation strings.</p>
 	    </div>
     </div>
     
     <div class="hasJson" style="display: none;">
     	<div id="jsGrid"></div>
+    	<div id="dialogsOverlay" style="display: none;">
+    		<div id="dialogAdd" class="dialog" style="display: none;">
+    			<div class="dialogCloseBox"><a href="" class="glyphicon glyphicon-remove"></a></div>
+    			<h2>Translations actions</h2>
+    			<form id="addTranslationCode">
+					<div class="form-group">
+						<label for="newLangCode">Translation / language code</label>
+						<input type="text" name="newLangCode" id="newLangCode" class="form-control" placeholder="New Translation Language Code">
+					</div>
+    				<button type="submit" class="btn btn-primary">Add Translation (row)</button>
+    			</form>
+    			<hr />
+    			<form id="removeTranslationLanguage">
+					<div class="form-group">
+						<label for="removeLangCode">Translation Language</label>
+						<select id="removeLangCode" class="form-control">
+						  <option></option>
+						</select>
+					</div>
+    				<button type="submit" class="btn btn-danger">Remove Translation (row)</button>
+    			</form>
+    		</div>
+    	</div>
     </div>
     
     <script type="text/javascript" src="./assets/jsgrid/jsgrid.min.js"></script>

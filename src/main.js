@@ -1,17 +1,118 @@
-const {app, BrowserWindow, remote} = require('electron');
+const {app, BrowserWindow, remote, Menu, globalShortcut} = require('electron');
 const path = require('path');
 const url = require('url');
 
 // let $ = require('jquery');
 
+
+const template = [
+  {
+    label: 'Edit',
+    submenu: [
+      {role: 'undo'},
+      {role: 'redo'},
+      {type: 'separator'},
+      {role: 'cut'},
+      {role: 'copy'},
+      {role: 'paste'},
+      {role: 'pasteandmatchstyle'},
+      {role: 'delete'},
+      {role: 'selectall'}
+    ]
+  },
+  {
+    label: 'View',
+    submenu: [
+      {role: 'reload'},
+      {role: 'forcereload'},
+      {role: 'toggledevtools'},
+      {type: 'separator'},
+      {role: 'resetzoom'},
+      {role: 'zoomin'},
+      {role: 'zoomout'},
+      {type: 'separator'},
+      {role: 'togglefullscreen'}
+    ]
+  },
+  {
+    role: 'window',
+    submenu: [
+      {
+      	label: 'New Jamlin Editor', 
+      	accelerator: 'CommandOrControl+N', 
+      	click() { createWindow(); }
+      }, 
+      {type: 'separator'},
+      {role: 'minimize'},
+      {role: 'close'}
+    ]
+  },
+  {
+    role: 'help',
+    submenu: [
+      {
+        label: 'Learn More',
+        click () { require('electron').shell.openExternal('https://github.com/Wradgio/Jamlin-Editor') }
+      }
+    ]
+  }
+];
+
+if (process.platform === 'darwin') {
+  template.unshift({
+    label: app.getName(),
+    submenu: [
+      {role: 'about'},
+      {type: 'separator'},
+      {role: 'services', submenu: []},
+      {type: 'separator'},
+      {role: 'hide'},
+      {role: 'hideothers'},
+      {role: 'unhide'},
+      {type: 'separator'},
+      {role: 'quit'}
+    ]
+  })
+
+  // Edit menu
+  template[1].submenu.push(
+    {type: 'separator'},
+    {
+      label: 'Speech',
+      submenu: [
+        {role: 'startspeaking'},
+        {role: 'stopspeaking'}
+      ]
+    }
+  )
+
+  // Window menu
+  template[3].submenu = [
+      {
+      	label: 'New Jamlin Editor', 
+      	accelerator: 'CommandOrControl+N', 
+      	click() { createWindow(); }
+      }, 
+      {type: 'separator'},
+    {role: 'close'},
+    {role: 'minimize'},
+    {role: 'zoom'},
+    {type: 'separator'},
+    {role: 'front'}
+  ]
+}
+
+
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 
 let windows = [];
+var win;
 
-function createWindow () {
+function createWindow() {
   // Create the browser window.
-  var win = new BrowserWindow({width: 1200, height: 900});
+  win = new BrowserWindow({width: 1200, height: 900});
 //   win.$ = $;
   windows.push(win);
   console.log(windows);
@@ -21,10 +122,10 @@ function createWindow () {
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
-  }))
+  }));
 
   // Open the DevTools.
-  win.webContents.openDevTools()
+  //win.webContents.openDevTools()
 
   // Emitted when the window is closed.
   win.on('closed', () => {
@@ -37,15 +138,25 @@ function createWindow () {
     	}
     }
     console.log(windows);
-    win = null
-  })
+    if (windows.length<1) {
+    	win = null
+    }
+  });
+  
+  win.on('focus', () => {
+  	win = BrowserWindow.getFocusedWindow();
+  	console.log(win);
+  });
+    
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', function () {
-	createWindow();
+  createWindow();
 });
 
 // Quit when all windows are closed.
@@ -53,7 +164,9 @@ app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    app.quit()
+    app.quit();
+  } else {
+  	createWindow();
   }
 })
 

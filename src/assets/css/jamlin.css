@@ -14,6 +14,15 @@
 	color: #fff;
 }
 
+#jsGrid .jsgrid-grid-body .jsgrid-edit-row .jsgrid-cell input[type=text] {
+	display: none;
+}
+#jsGrid .jsgrid-grid-body .translation .jsgrid-cell.infovalue {
+	font-style: italic;
+	font-size: 80%;
+	color: #777;
+}
+
 #jsGrid tr.translation {
 	
 }
@@ -27,4 +36,69 @@
 }
 .vertical-center .row {
   width: 100%;
+  padding-left: 50%;
+}
+.vertical-center .row h1 {
+	margin: 20px 0 40px 0;
+	font-size: 4em;
+}
+.vertical-center .row button, .vertical-center .row p {
+	margin: 10px 0;
+}
+
+.needJson {
+	background: url('../img/jamlin_icon.svg') 10% center no-repeat;
+	background-size: 30%;
+}
+
+#dialogsOverlay {
+	background-color: rgba(0, 0, 0, 0.8);
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+    justify-content: center;
+    align-items: center;
+	text-align: center;
+	z-index: 10000;
+}
+#dialogsOverlay .dialog {
+	min-width: 400px;
+	width: 40%;
+	min-height: 300px;
+	background-color: #ddd;
+    padding: 10px 20px 20px 20px;
+    position: relative;
+}
+.dialogCloseBox {
+	display: inline-block;
+    position: absolute;
+    right: -22px;
+    top: -22px;
+}
+.dialogCloseBox a {
+	color: #fff;
+    font-size: 22px;
+    opacity: 0.7;
+}
+.dialogCloseBox a:hover {
+	opacity: 1;
+	text-decoration: none;
+}
+
+.translationSettings {
+	padding: 0;
+	margin: 0;
+	border: 0;
+	background: none;
+	margin-left: 4px;
+}
+.translationSettings .glyphicon-cog {
+	font-size: 26px;
+    top: 4px;
+}
+.translationSettings .glyphicon-cog:hover {
+	opacity: 0.7;
 }

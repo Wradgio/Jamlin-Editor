@@ -1,5 +1,3 @@
-const dialog = require('electron').remote.dialog;
-var fs = require('fs');
 //dialog.showErrorBox('Error title', 'error')
 
 $.getScript("./assets/save.js", function() {
@@ -27,6 +25,7 @@ var showJsonEditBlock = function(newValue) {
 
 
 var getJsonDataLangs = function() {
+	jsonDataLangs = [];
 	if (typeof jsonData !== 'undefined' && jsonData!=null) {
 		// blocks
 		if ( typeof jsonData.translationBlocks !== 'undefined' && jsonData.translationBlocks instanceof Array && jsonData.translationBlocks.length>0 ) {
@@ -48,18 +47,60 @@ var getJsonDataLangs = function() {
 		}
 	}
 	
-	
+	tableCollFields = $.extend(true,[],tableCollFieldsOrig);
 	for (var i=0; i<jsonDataLangs.length; i++) {
 		tableCollFields.push(
 			{ name: jsonDataLangs[i], type: "textarea", width: "auto" },
 		);
 	}
-	tableCollFields.push( { type: "control", width: "70px" } );
+	tableCollFields.push({ 
+		type: "control", 
+		width: "100px", 
+		headerTemplate: function() {
+			var grid = this._grid;
+			var isInserting = grid.inserting;
+
+			var $button = $("<input>").attr("type", "button")
+				.addClass([this.buttonClass, this.modeButtonClass, this.insertModeButtonClass].join(" "))
+				.on("click", function() {
+					isInserting = !isInserting;
+					grid.option("inserting", isInserting);
+				});
+				
+			var $settings = $("<button>").attr("type", "button")
+				.addClass(this.modeButtonClass+' translationSettings')
+				.append($("<span>").addClass('glyphicon glyphicon-cog'))
+				.on("click", function() {
+					$('#dialogsOverlay').show();
+					$('#dialogAdd').show();
+					// langs select
+					var langsOptions = '';
+					for (var i=0; i<jsonDataLangs.length; i++) {
+						langsOptions = langsOptions + '<option value="'+jsonDataLangs[i]+'">'+jsonDataLangs[i]+'</option>';
+					}
+					$('#removeLangCode')
+					.find('option')
+					.remove()
+					.end()
+					.append(langsOptions)
+					.val( jsonDataLangs[jsonDataLangs.length-1] );
+				});
+				
+			var $buttonsWrapper = $('<div>').addClass('buttonsWrapper');
+			$buttonsWrapper.append($button);
+			$buttonsWrapper.append($settings);
+
+			return $buttonsWrapper;
+		}, 
+	});
 	console.log(tableCollFields);
 }
 
 
 
+/**
+ * 
+ */
 var processJsonData = function() {
 	if (typeof jsonData !== 'undefined' && jsonData!=null) {
 		if ( typeof jsonData.translationBlocks !== 'undefined' && jsonData.translationBlocks instanceof Array && jsonData.translationBlocks.length>0 ) {
@@ -135,7 +176,7 @@ var processJsonData = function() {
  * after table row values was updated, find and update related 
  */
 var updateJsonDataTranslationString = function(oldValue, newValue) {
-	if ( typeof oldValue.data !== 'undefined' ) {
+	if ( oldValue!=null && typeof oldValue.data !== 'undefined' ) {
 		oldValue.data = JSON.parse(oldValue.data);
 	}
 	
@@ -199,6 +240,120 @@ var updateJsonDataTranslationString = function(oldValue, newValue) {
 
 
 
+var deleteTranslation = function(item2delete) {
+	if ( item2delete!=null && typeof item2delete.data!=='undefined' ) {
+		item2delete.data = JSON.parse(item2delete.data);
+	}
+	console.log(item2delete);
+	/* {
+	   "type":"translation",
+	   "classes":"translation",
+	   "data":"{\"name\":\"texts\",\"selector\":\"p, a\",\"attr\":\"\"}",
+	   "Name":"Menu",
+	   "Selector":"#mobile_menu",
+	   "en":"Menu",
+	   "sk":"Menu"
+	} */
+	
+	if (typeof jsonData !== 'undefined' && jsonData!=null) {
+		if ( typeof jsonData.translationBlocks !== 'undefined' && jsonData.translationBlocks instanceof Array && jsonData.translationBlocks.length>0 ) {
+			// blocks
+			for (var i=0; i<jsonData.translationBlocks.length; i++) {
+				
+				// if block found
+				if ( item2delete.data.name==jsonData.translationBlocks[i].name && item2delete.data.selector==jsonData.translationBlocks[i].cssSelector && item2delete.data.attr==jsonData.translationBlocks[i].attrName ) {
+					// continue looking for right translationString
+				
+					if ( typeof jsonData.translationBlocks[i].translationStrings !== 'undefined' && jsonData.translationBlocks[i].translationStrings instanceof Array && jsonData.translationBlocks[i].translationStrings.length>0 ) {
+						// strings
+						for (var j=0; j<jsonData.translationBlocks[i].translationStrings.length; j++) {
+							
+							// if translationString found
+							if ( item2delete.Name==jsonData.translationBlocks[i].translationStrings[j].stringOrig && item2delete.Selector==jsonData.translationBlocks[i].translationStrings[j].selector ) {
+								// update translationString values
+								jsonData.translationBlocks[i].translationStrings.splice(j, 1);
+								return true;							
+							} // if translationString found END
+							
+						} // end for strings
+					}
+				
+				} // if block found END
+				
+			} // end for blocks
+		}
+	}
+	
+	return false;
+}
+
+
+
+/**
+ * add new language as code
+ */
+var addTranslationLanguage = function(newLangCode) {
+	if (typeof jsonData !== 'undefined' && jsonData!=null) {
+		// blocks
+		if ( typeof jsonData.translationBlocks !== 'undefined' && jsonData.translationBlocks instanceof Array && jsonData.translationBlocks.length>0 ) {
+			for (var i=0; i<jsonData.translationBlocks.length; i++) {
+				// strings
+				if ( typeof jsonData.translationBlocks[i].translationStrings !== 'undefined' && jsonData.translationBlocks[i].translationStrings instanceof Array && jsonData.translationBlocks[i].translationStrings.length>0 ) {
+					for (var j=0; j<jsonData.translationBlocks[i].translationStrings.length; j++) {
+						// translations
+						if ( typeof jsonData.translationBlocks[i].translationStrings[j].translations !== 'undefined' && jsonData.translationBlocks[i].translationStrings[j].translations instanceof Array && jsonData.translationBlocks[i].translationStrings[j].translations.length>0 ) {
+							var existingTranslationLaguages = [];
+							for (var k=0; k<jsonData.translationBlocks[i].translationStrings[j].translations.length; k++) {
+								existingTranslationLaguages.push( jsonData.translationBlocks[i].translationStrings[j].translations[k].langCode );
+							}// end for translations
+							//--
+							if ( $.inArray(newLangCode, existingTranslationLaguages)<0 ) {
+								jsonData.translationBlocks[i].translationStrings[j].translations.push( 
+									{
+										'langCode': newLangCode, 
+										'translation': ''
+									}
+								);
+							}
+						}
+					} // end for strings
+				}
+			} // end for blocks
+		}
+		return true;
+	}
+	return false;
+}
+
+
+var removeTranslationLanguage = function(removeLangCode) {
+	if (typeof jsonData !== 'undefined' && jsonData!=null) {
+		// blocks
+		if ( typeof jsonData.translationBlocks !== 'undefined' && jsonData.translationBlocks instanceof Array && jsonData.translationBlocks.length>0 ) {
+			for (var i=0; i<jsonData.translationBlocks.length; i++) {
+				// strings
+				if ( typeof jsonData.translationBlocks[i].translationStrings !== 'undefined' && jsonData.translationBlocks[i].translationStrings instanceof Array && jsonData.translationBlocks[i].translationStrings.length>0 ) {
+					for (var j=0; j<jsonData.translationBlocks[i].translationStrings.length; j++) {
+						// translations
+						if ( typeof jsonData.translationBlocks[i].translationStrings[j].translations !== 'undefined' && jsonData.translationBlocks[i].translationStrings[j].translations instanceof Array && jsonData.translationBlocks[i].translationStrings[j].translations.length>0 ) {
+							var existingTranslationLaguages = [];
+							for (var k=0; k<jsonData.translationBlocks[i].translationStrings[j].translations.length; k++) {
+								if ( jsonData.translationBlocks[i].translationStrings[j].translations[k].langCode == removeLangCode ) {
+									jsonData.translationBlocks[i].translationStrings[j].translations.splice(k, 1);
+								}
+							}// end for translations
+						}
+					} // end for strings
+				}
+			} // end for blocks
+		}
+		return true;
+	}
+	return false;
+}
+
+
+
 var findValueInJsonData = function() {
 	
 }
@@ -210,22 +365,73 @@ $('.showOpenDialogButton').click(function(e){
 	showOpenDialog();
 });
 
+$('#dialogsOverlay').click(function(e){
+	e.stopPropagation();
+	$(this).hide();
+	$('.dialog').hide();
+});
+$('.dialog').click(function(e){
+	e.stopPropagation();
+});
+$('.dialogCloseBox a').click(function(e){
+	e.preventDefault();
+	e.stopPropagation();
+	$('#dialogsOverlay').hide();
+	$('.dialog').hide();
+});
+$('#addTranslationCode').submit(function(e){
+	e.preventDefault();
+	var newLangCode = $(this).find('#newLangCode').val();
+	if ( $.trim(newLangCode)!='' && /^[a-z]+$/.test(newLangCode) ) {
+		// remove other than alphabet characters
+		newLangCode.replace(/[^a-z]/g, "");
+		var updateResult = addTranslationLanguage(newLangCode);
+		if (updateResult && jsonDataFile!=null) {
+			getJsonDataLangs();
+			processJsonData();
+			reloadTable();
+			saveFile( jsonDataFile, JSON.stringify(jsonData, null, 2) );
+			$('#dialogsOverlay').hide();
+			$('.dialog').hide();
+		}
+	}
+});
+$('#removeTranslationLanguage').submit(function(e){
+	e.preventDefault();
+	var removeLangCode = $(this).find('#removeLangCode').val();
+	if ( $.trim(removeLangCode)!='' && /^[a-z]+$/.test(removeLangCode) ) {
+		// remove other than alphabet characters
+		removeLangCode.replace(/[^a-z]/g, "");
+		var updateResult = removeTranslationLanguage(removeLangCode);
+		if (updateResult && jsonDataFile!=null) {
+			getJsonDataLangs();
+			processJsonData();
+			reloadTable();
+			saveFile( jsonDataFile, JSON.stringify(jsonData, null, 2) );
+			$('#dialogsOverlay').hide();
+			$('.dialog').hide();
+		}
+	}
+});
 
 
-var tableCollFields = [
+
+var tableCollFieldsOrig = [
 	{ name: "type", type: "text", visible: false },
 	{ name: "classes", type: "text", visible: false },
 	{ name: "data", type: "text", visible: false },
-	{ name: "Name", type: "text", visible: true, width: "auto", readOnly: true }, //validate: "required" },
-	{ name: "Selector", type: "text", visible: false }, //validate: "required", width: "auto" }
+	{ name: "Name", type: "text", visible: true, width: "15%" }, //readOnly: true, validate: "required" },
+	{ name: "Selector", type: "text", width: "15%" }, //, visible: false, validate: "required", width: "auto" }
 ];
+var tableCollFields = $.extend(true,{},tableCollFieldsOrig);
 
 
 
 var reloadTable = function() {
+	$("#jsGrid").jsGrid("destroy");
 	$("#jsGrid").jsGrid({
 		width: "100%",
-		height: "600px",
+		height: "auto",
 
 		filtering: true,
 		inserting: true,
@@ -238,20 +444,29 @@ var reloadTable = function() {
         
         onItemEditing: function(args) {
         	// cancel editing of the row of item block type - blocks should be defined by extractor
-			if(args.item.type == "block") {
+        	console.log('onItemEditing', args.item.type);
+			if (args.item.type == "block") {
 				args.cancel = true;
+			} else {
+				console.log('disable?');
+				console.log( $('#jsGrid .jsgrid-grid-body .jsgrid-edit-row .jsgrid-cell input[type=text]') );
+				args.row.find('input[type=text]').attr('disabled', 'disabled');
+				$(document).ready(function(){
+					$('#jsGrid .jsgrid-grid-body .jsgrid-edit-row .jsgrid-cell input[type=text]').attr('disabled', 'disabled');
+				});
 			}
 		}, 
 
         onItemUpdated: function(args) {
         	console.log(args); // row: init(1), item: Object, itemIndex: 1, previousItem: Object, grid: d
-        	updateJsonDataTranslationString(args.previousItem, args.item);
-        	if (jsonDataFile!=null) {
+        	var updateResult = updateJsonDataTranslationString(args.previousItem, args.item);
+        	if (updateResult && jsonDataFile!=null) {
         		saveFile( jsonDataFile, JSON.stringify(jsonData, null, 2) );
         	}
         },
         
         rowRenderer: function(item, itemIndex) {
+			var grid = this;
         	var rowClasses = '';
         	if ( itemIndex^2>0 ) {
         		rowClasses += 'jsgrid-row ';
@@ -260,12 +475,29 @@ var reloadTable = function() {
         	}
         	rowClasses += item.classes;
         	var thisRow = $("<tr>").addClass(rowClasses);
-        	thisRow.append( $("<td>").addClass('jsgrid-cell').css('width', 'auto').append(item.Name) );
+        	thisRow.append( $("<td>").addClass('jsgrid-cell infovalue').css('width', '15%').append(item.Selector) );
+        	thisRow.append( $("<td>").addClass('jsgrid-cell infovalue').css('width', '15%').append(item.Name) );
         	for (var i=0; i<jsonDataLangs.length; i++) {
         		thisRow.append( $("<td>").addClass('jsgrid-cell').attr('lang',jsonDataLangs[i]).css('width', 'auto').append(item[jsonDataLangs[i]]) );
         	}
+        	
+			var $editButton = $("<input>").attr("type", "button").addClass("jsgrid-button jsgrid-edit-button");
+			var $deleteButton = $("<input>").attr("type", "button").addClass("jsgrid-button jsgrid-delete-button");
+			
+			$editButton.on("click", function() {
+				grid.editItem(item);
+			});
+			$deleteButton.on("click", function(e) {
+				e.stopPropagation();
+				grid.deleteItem(item);
+				var deleteResult = deleteTranslation(item);
+				if (deleteResult && jsonDataFile!=null) {
+					saveFile( jsonDataFile, JSON.stringify(jsonData, null, 2) );
+				}
+			});
+        	
         	var width = tableCollFields[tableCollFields.length-1].width;
-        	thisRow.append( $("<td>").addClass('jsgrid-cell jsgrid-control-field jsgrid-align-center').css('width', width).append('...') );
+        	thisRow.append( $("<td>").addClass('jsgrid-cell jsgrid-control-field jsgrid-align-center').css('width', width).append($editButton).append($deleteButton) );
 			return thisRow;
 		},
 
