@@ -17,7 +17,7 @@
     "electron-compile": "^6.4.2",
     "electron-squirrel-startup": "^1.0.0",
     "fs": "0.0.1-security",
-    "jquery": "^3.2.1"
+    "jquery": "^3.5.0"
   },
   "scripts": {
     "start": "electron-forge start",
