@@ -1,3 +1,5 @@
+> This project is not active or supported anymore and is archived only for historical reasons. If you need a translation editor for JaMLin, use the [**jamlin-editor-webcomponent**](https://github.com/StretchShop/jamlin-editor-webcomponent) project.
+
 ![Logo](./wiki assets/logo.png)
 
 # Jamlin Editor
